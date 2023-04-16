@@ -71,6 +71,10 @@ SEQ则表示本次当前客户端/服务端发送的序列号
 TCP为了避免被发送方分片，会主动将数据分割成小段再交给网络层，最大的分段大小成为MSS。`MSS = MTU - IP header头大小 - TCP 头大小`，
 在以太网中 MSS = 1500 - 20 - 20 = 1460（无表头选项的情况下），这样就能将一个 MSS 的数据恰好装进一个 MTU 而不用分片了。
 
+### 端口号
+
+分层结构中每一层都有一个唯一标识，比如数据链路层的 MAC 地址，网络互联层的 IP 地址和传输层的端口号。端口号用来区分主机上的应用程序。
+
 ### Wireshark 工具
 
 #### 1. 过滤指定域名的包
@@ -90,3 +94,8 @@ curl是在命令行下工作的文件传输工具，支持文件的上传和下�
 安装完成后提示 `The capture session could not be initiated on interface 'en0' (You don't have permission to capture on that device).`
 
 执行 `sudo chmod o+r /dev/bpf*` 修改权限即可
+
+### 网络相关命令行操作
+
+- `telnet ip port` 和 `nc -v ip port`: 查看服务器端口是否打开
+- `sudo netstat -ltpn | grep :22`: 查看端口被什么进程监听占用
