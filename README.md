@@ -31,11 +31,11 @@ TCP 是一个**可靠的**（reliable）、**面向连接的**（connection-orie
 窗口大小默认16位，也就是窗口最大大小为 655535 字节，由于该值太小，便引入了 **TCP窗口缩放** 参数来作为窗口缩放的比例因子，该值范围为 0 - 14，
 它是2的指数幂大小，当为0时不进行缩放，下图中抓包信息就没有对窗口值进行缩放。
 
-![img.png](窗口大小.png)
+![img.png](src/resource/images/窗口大小.png)
 
 ### 2. 三次握手
 
-![img.png](三次握手.png)
+![img.png](src/resource/images/三次握手.png)
 
 ACK值为期待对侧下次发送报文的SEQ
 
@@ -58,13 +58,13 @@ SEQ则表示本次当前客户端/服务端发送的序列号
 
 ##### 握手可以变成四次吗？
 
-![img.png](三次握手变成四次握手.png)
+![img.png](src/resource/images/三次握手变成四次握手.png)
 
 理论上是可以的，将第二次握手拆成两个包，分别发送**ACK确认报文**和**SYN同步报文**。
 
 ### 3. 四次挥手
 
-![img.png](四次挥手.png)
+![img.png](src/resource/images/四次挥手.png)
 
 1. 客户端调用 `close()` 方法，执行主动关闭，会发送**FIN报文**给服务端，在这之后客户端就不会再向服务端发送数据了，但是还能接收服务端发送的数据。
 此时客户端进入 `FIN-WAIT-1` 状态。
@@ -75,7 +75,7 @@ SEQ则表示本次当前客户端/服务端发送的序列号
 
 ##### 四次挥手可以变成三次吗？
 
-![img.png](四次挥手变成三次挥手.png)
+![img.png](src/resource/images/四次挥手变成三次挥手.png)
 
 可以的，如果在服务端收到客户端的**FIN报文**后，没有数据再给客户端发送，那么可以将**FIN报文**和**ACK报文**合成一个数据包发送，这样就成了三次挥手。
 
@@ -103,7 +103,7 @@ TIME_WAIT 存在的原因：
 
 ### 5. 滑动窗口
 
-![img.png](滑动窗口.png)
+![img.png](src/resource/images/滑动窗口.png)
 
 **发送窗口**是发送端被允许发送的最大数据包的大小
 
@@ -114,11 +114,11 @@ TIME_WAIT 存在的原因：
 
 ##### TCP window full 和 TCP Zero Window
 
-![img.png](TCPWindowFull.png)
+![img.png](src/resource/images/TCPWindowFull.png)
 
 这种情况表示发送方已经把接收方声明的**接收窗口用完了**
 
-![img.png](TCPZeroWindow.png)
+![img.png](src/resource/images/TCPZeroWindow.png)
 
 第9个包是接收端回复的**ACK确认报文**，`TCP Zero Window` 表示接收端已经不能再接收任何数据了，而下方的 `TCP Keep-Alive` 包则是**零窗口探针**，
 它用来探测接收方什么时候能再次接收数据包。
@@ -156,7 +156,7 @@ TIME_WAIT 存在的原因：
 发送 3、4、5 包收到的全部是 ACK=1001，快速重传解决了一个问题: 需要重传。因为除了 2 号包，3、4、5 包也有可能丢失，
 那到底是只重传数据包 2 还是重传 2、3、4、5 所有包呢？选择确认机制解决了这个问题，接收端会告诉发送端已经接收到的包的范围，如下图所示
 
-![img.png](SACK.png)
+![img.png](src/resource/images/SACK.png)
 
 其中SACK表示已经接收到的报文范围，这样发送端只重传丢失的2号包就好了
 
@@ -182,7 +182,7 @@ TIME_WAIT 存在的原因：
 
 `Timestamps` 是TCP协议中请求头信息中的选填内容，以如下抓包为例
 
-![img.png](Timestamps.png)
+![img.png](src/resource/images/Timestamps.png)
 
 其中 `TSval` 是 `TS value`，`TSecr` 是 `TS Echo Reply`，分别代表发送时的时间戳和接收到的时间戳，它能够用来计算往返时延（`RTTM`）
 
@@ -194,15 +194,15 @@ TIME_WAIT 存在的原因：
 
 执行 `ping -s 3000 www.baidu.com` 来演示报文分割，其中 -s 表示要指定发送数据的字节数
 
-![img.png](MTU报文分割.png)
+![img.png](src/resource/images/MTU报文分割.png)
 
 报文分割的第一个包，`More fragments: Set` 表示这个包是 IP 分段包的一部分，还有其它的分片包，`Fragment offset: 0`表示分片偏移量为 0
 
-![img.png](MTU报文分割2.png)
+![img.png](src/resource/images/MTU报文分割2.png)
 
 报文分割的第二个包，`Fragment offset: 1480`，这里表示第一个包的 `payload` 大小
 
-![img.png](MTU报文分割3.png)
+![img.png](src/resource/images/MTU报文分割3.png)
 
 报文分割的第三个包，`More fragments: Not set` 表示这个包是最后一个分片，`Fragment offset: 2960` 为偏移量。
 
@@ -222,7 +222,7 @@ TCP为了避免被发送方分片，会主动将数据分割成小段再交给�
 TFO（TCP 快速打开）是在TCP基础上的扩展协议，对三次握手进行了优化，它需要先完成一次正常的三次握手，
 之后就能够借助 `Fast Open Cookie` 在之后建立连接时，第一次发送**SYN同步报文**时就开始传输数据，如下图中右侧所示
 
-![img.png](TFO.png)
+![img.png](src/resource/images/TFO.png)
 
 第一次三次握手时，客户端将 Cookie 值保存起来用于之后的TFO，它的优势是从第二次请求开始可以在**一个RTT时间**拿到响应数据
 （RTT Round-Trip Time: 指最后一个比特推送到数据链路上直到收到确认报文的时间）。
@@ -248,7 +248,7 @@ Nagle算法的作用是减少小包在客户端和服务端的直接传输。当
 
 如果发送的报文没有收到ACK报文时，会进行指数级退避重传，直到120s为止。
 
-![img.png](指数退避重传消息.png)
+![img.png](src/resource/images/指数退避重传消息.png)
 
 ##### 3. 延时ACK定时器
 
@@ -258,13 +258,13 @@ Nagle算法的作用是减少小包在客户端和服务端的直接传输。当
 
 该定时器用于零窗口试探时延。
 
-![img.png](PersistTimer.png)
+![img.png](src/resource/images/PersistTimer.png)
 
 ##### 5. Keepalive 定时器
 
 该定时器用于在TCP连接空闲超过2H，会发送一个探测报文来检测对端是否还存活。
 
-![img.png](KeepaliveTimer.png)
+![img.png](src/resource/images/KeepaliveTimer.png)
 
 ##### 6. FIN-WAIT-2 定时器
 
@@ -280,7 +280,7 @@ FIN-WAIT-2 定时器在发送FIN报文并收到ACK报文后开始计时。如果
 
 ##### 过滤指定域名的包
 
-![img.png](指定域名过滤.png)
+![img.png](src/resource/images/指定域名过滤.png)
 
 执行 `curl http://www.baidu.com`
 
@@ -288,7 +288,7 @@ curl是在命令行下工作的文件传输工具，支持文件的上传和下�
 
 `curl -v www.baidu.com` 会显示通信过程
 
-![img.png](curl-v.png)
+![img.png](src/resource/images/curl-v.png)
 
 ##### 异常解决
 
